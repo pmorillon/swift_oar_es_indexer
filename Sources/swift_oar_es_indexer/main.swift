@@ -45,4 +45,30 @@ let request = try conn.execute(sqlQuery)
 
 let jobs = try OARCollection<OARJob>(node: request)
 
-print(jobs)
+var documents: [ESDocument] = []
+
+for job in jobs.items {
+    let doc = ESDocument(jobId: job.jobId,
+                         state: job.state,
+                         jobUser: job.jobUser,
+                         startTime: job.startTime,
+                         stopTime: job.stopTime,
+                         submissionTime: job.submissionTime,
+                         jobName: job.jobName,
+                         initialRequest: job.initialRequest,
+                         jobType: job.jobType,
+                         queueName: job.queueName,
+                         resourcesCount: job.resourcesCount,
+                         resources: [ESDocument.OARResource(host: job.host, cluster: job.cluster, resourcesCount: job.resourcesCount)]
+    )
+    if (documents.count > 0 && documents.last?.jobId == doc.jobId) {
+        documents[documents.endIndex - 1].resources.append(ESDocument.OARResource(host: job.host, cluster: job.cluster, resourcesCount: job.resourcesCount))
+        documents[documents.endIndex - 1].resourcesCount += job.resourcesCount
+    } else {
+        documents.append(doc)
+    }
+}
+
+let encoder = JSONEncoder()
+let data = try encoder.encode(documents)
+print(String(data: data, encoding: .utf8)!)
