@@ -1,3 +1,2 @@
-# swift_oar_es_indexer
+[![Swift](https://img.shields.io/badge/swift-4.0-brightgreen.svg)](https://swift.org)
 
-A description of this package.
