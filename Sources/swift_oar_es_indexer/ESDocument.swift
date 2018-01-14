@@ -16,9 +16,9 @@ struct ESDocument: Codable {
     let jobId: Int
     let state: String
     let jobUser: String
-    let startTime: Int
-    let stopTime: Int
-    let submissionTime: Int
+    var startTime: Int
+    var stopTime: Int
+    var submissionTime: Int
     let jobName: String?
     let initialRequest: String
     let jobType: String

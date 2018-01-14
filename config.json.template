@@ -1,0 +1,15 @@
+{
+    "oar": {
+        "hostname": "localhost",
+        "database": "oar2",
+        "port": 5432,
+        "user": "oarreader",
+        "password": "read"
+    },
+    "elasticsearch": {
+        "hostname": "localhost",
+        "port": 9200,
+        "user": "elastic",
+        "password": "changeme"
+    }
+}
