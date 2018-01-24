@@ -11,8 +11,8 @@ struct OARJob: NodeInitializable {
     let jobName: String?
     let initialRequest: String
     let resourcesCount: Int
-    let cluster: String
-    let host: String
+    let cluster: String?
+    let host: String?
     let jobType: String
     let queueName: String
     

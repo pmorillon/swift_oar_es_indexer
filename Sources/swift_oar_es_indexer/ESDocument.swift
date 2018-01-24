@@ -1,33 +1,24 @@
 import Foundation
 
 struct ESDocument: Codable {
-    
-    struct OARResource: Codable {
-        let host: String
-        let cluster: String
-        let resourcesCount: Int
-        
-        enum CodingKeys: String, CodingKey {
-            case host, cluster
-            case resourcesCount = "resources_count"
-        }
-    }
-    
     let jobId: Int
     let state: String
     let jobUser: String
     var startTime: Int
     var stopTime: Int
+    var duration: Int
+    var durationResource: Int
     var submissionTime: Int
     let jobName: String?
     let initialRequest: String
     let jobType: String
     let queueName: String
     var resourcesCount: Int
-    var resources: [OARResource]
+    let host: String?
+    let cluster: String?
     
     enum CodingKeys: String, CodingKey {
-        case state, resources
+        case state, duration, host, cluster
         case jobId = "job_id"
         case jobUser = "job_user"
         case startTime = "start_time"
@@ -38,6 +29,7 @@ struct ESDocument: Codable {
         case queueName = "queue_name"
         case initialRequest = "initial_request"
         case resourcesCount = "resources_count"
+        case durationResource = "duration_resource"
     }
     
 }
