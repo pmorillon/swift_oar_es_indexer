@@ -20,6 +20,15 @@ let conn = try postgreSQL.makeConnection()
 let startTime: Int = 1504994400
 let stopTime: Int = 1506722400
 
+let sqlMinSubmissionTime = "SELECT MIN(submission_time) from jobs"
+let sqlMaxSubmissionTime = "SELECT MAX(submission_time) from jobs"
+
+let minSubmissionTime = try conn.execute(sqlMinSubmissionTime).wrapped.array?.first!["min"]
+let maxSubmissionTime = try conn.execute(sqlMaxSubmissionTime).wrapped.array?.first!["max"]
+
+print(minSubmissionTime!)
+print(maxSubmissionTime!)
+
 let sqlQuery = """
 SELECT jobs.job_id,
     jobs.start_time,
@@ -41,8 +50,8 @@ LEFT JOIN assigned_resources
 ON jobs.assigned_moldable_job = assigned_resources.moldable_job_id
 LEFT JOIN resources
 ON assigned_resources.resource_id = resources.resource_id
-WHERE jobs.submission_time > '\(startTime)'
-    AND jobs.submission_time < '\(stopTime)'
+WHERE jobs.submission_time > '\(minSubmissionTime!.int!)'
+AND jobs.submission_time < '\(minSubmissionTime!.int! + 86400)'
     AND jobs.queue_name != 'admin'
     AND jobs.state IN ('Terminated', 'Error')
 GROUP BY jobs.job_id, resources.cluster, resources.host, resources.type
@@ -53,6 +62,7 @@ let request = try conn.execute(sqlQuery)
 
 let jobs = try OARCollection<OARJob>(node: request)
 
+print(jobs.items.count)
 
 // Prepare Elasticsearch Documents
 var documents: [ESDocument] = []
