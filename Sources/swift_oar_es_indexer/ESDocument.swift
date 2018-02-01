@@ -10,7 +10,7 @@ struct ESDocument: Codable {
     var durationResource: Int
     var submissionTime: Int
     let jobName: String?
-    let initialRequest: String
+    let initialRequest: String?
     let jobType: String
     let queueName: String
     var resourcesCount: Int

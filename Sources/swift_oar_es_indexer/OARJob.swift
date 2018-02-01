@@ -9,7 +9,7 @@ struct OARJob: NodeInitializable {
     let stopTime: Int
     let submissionTime: Int
     let jobName: String?
-    let initialRequest: String
+    let initialRequest: String?
     let resourcesCount: Int
     let cluster: String?
     let host: String?
