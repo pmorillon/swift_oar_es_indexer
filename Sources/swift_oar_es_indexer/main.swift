@@ -15,19 +15,26 @@ let postgreSQL = try PostgreSQL.Database(
 )
 let conn = try postgreSQL.makeConnection()
 
+let es = Elasticsearch(baseUrl: "http://" + config.elasticsearch.hostname + ":" + String(config.elasticsearch.port),
+                       username: config.elasticsearch.user,
+                       password: config.elasticsearch.password
+)
+
+let maxJobId = es.getMaxJobId()
+print("Last indexes job into elasticsearch : \(maxJobId)")
 
 // Query Postgres database
 let startTime: Int = 1504994400
 let stopTime: Int = 1506722400
 
-let sqlMinSubmissionTime = "SELECT MIN(submission_time) from jobs"
-let sqlMaxSubmissionTime = "SELECT MAX(submission_time) from jobs"
+let sqlMinSubmissionTime = "SELECT MIN(submission_time) from jobs where job_id > \(maxJobId)"
+let sqlMaxSubmissionTime = "SELECT MAX(submission_time) from jobs where job_id > \(maxJobId)"
 
 let minSubmissionTime = try conn.execute(sqlMinSubmissionTime).wrapped.array?.first!["min"]
-let maxSubmissionTime = try conn.execute(sqlMaxSubmissionTime).wrapped.array?.first!["max"]
+//let maxSubmissionTime = try conn.execute(sqlMaxSubmissionTime).wrapped.array?.first!["max"]
 
 print(minSubmissionTime!)
-print(maxSubmissionTime!)
+//print(maxSubmissionTime!)
 
 let sqlQuery = """
 SELECT jobs.job_id,
@@ -51,7 +58,8 @@ ON jobs.assigned_moldable_job = assigned_resources.moldable_job_id
 LEFT JOIN resources
 ON assigned_resources.resource_id = resources.resource_id
 WHERE jobs.submission_time > '\(minSubmissionTime!.int!)'
-AND jobs.submission_time < '\(minSubmissionTime!.int! + 86400)'
+    AND jobs.submission_time < '\(minSubmissionTime!.int! + 604800)'
+    AND jobs.job_id > \(maxJobId)
     AND jobs.queue_name != 'admin'
     AND jobs.state IN ('Terminated', 'Error')
 GROUP BY jobs.job_id, resources.cluster, resources.host, resources.type
@@ -123,10 +131,6 @@ let indexBody = """
 }
 """.data(using: .utf8)!
 
-let es = Elasticsearch(baseUrl: "http://" + config.elasticsearch.hostname + ":" + String(config.elasticsearch.port),
-                       username: config.elasticsearch.user,
-                       password: config.elasticsearch.password
-)
 let group = DispatchGroup()
 group.enter()
 es.createIndex(name: "oar_01", body: indexBody, completionHandler: { () in
@@ -137,6 +141,7 @@ group.wait()
 let chuncks = documents.split(chunkSize: 1000)
 
 for chunk in chuncks {
+    group.enter()
     var lines: String = ""
     for obj in chunk {
         var a = obj
@@ -148,7 +153,8 @@ for chunk in chuncks {
         
         lines.append(String(data: data, encoding: .utf8)! + "\n")
     }
-    es.bulk(body: lines.data(using: .utf8)!)
+    es.bulk(body: lines.data(using: .utf8)!, completionHandler: { () in
+        group.leave()
+    })
 }
-
-
+group.wait()

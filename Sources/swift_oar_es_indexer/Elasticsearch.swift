@@ -46,7 +46,56 @@ struct Elasticsearch {
         task.resume()
     }
     
-    func bulk(body: Data) {
+    func getMaxJobId() -> Int {
+        let url = URL(string: baseUrl + "/_search")
+        var request = URLRequest(url: url!)
+        var result: Int = 0
+        let body = """
+{
+  "query": {
+    "type": {
+      "value": "oar_document"
+    }
+  },
+  "aggs": {
+    "max_id": {
+      "max": {
+        "field": "job_id"
+      }
+    }
+  }
+}
+""".data(using: .utf8)!
+        let semaphore = DispatchSemaphore(value: 0)
+        request.httpMethod = "POST"
+        request.httpBody = body
+        addAuthHeader(to: &request)
+        let session = URLSession(configuration: URLSessionConfiguration.default)
+        let task = session.dataTask(with: request) { (data, response, error) in
+            guard error == nil else {
+                print(error!)
+                exit(1)
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                if httpResponse.statusCode == 200 {
+                    let decoder = JSONDecoder()
+                    let maxJobId = try! decoder.decode(ESAggsMaxJobId.self, from: data!)
+                    result = maxJobId.aggregations.max_id.value
+                } else {
+                    print("[Elasticsearch] Failed to get max job ID")
+                    print(String(bytes: data!, encoding: .utf8)!)
+                    exit(1)
+                }
+            }
+            semaphore.signal()
+        }
+        task.resume()
+        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
+        return result
+    }
+    
+    func bulk(body: Data, completionHandler: @escaping () -> Void) {
         let url = URL(string: baseUrl + "/_bulk")
         var request = URLRequest(url: url!)
         request.httpMethod = "PUT"
@@ -57,6 +106,7 @@ struct Elasticsearch {
         let task = session.dataTask(with: request) { (data, response, error) in
             guard error == nil else {
                 print(error!)
+                completionHandler()
                 return
             }
             if let httpResponse = response as? HTTPURLResponse {
@@ -66,9 +116,9 @@ struct Elasticsearch {
                     print(httpResponse)
                 }
             }
+            completionHandler()
         }
         task.resume()
-        
     }
     
 }
