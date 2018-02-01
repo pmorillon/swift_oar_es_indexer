@@ -80,8 +80,13 @@ struct Elasticsearch {
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 200 {
                     let decoder = JSONDecoder()
-                    let maxJobId = try! decoder.decode(ESAggsMaxJobId.self, from: data!)
-                    result = maxJobId.aggregations.max_id.value
+                    do {
+                        let maxJobId = try decoder.decode(ESAggsMaxJobId.self, from: data!)
+                        result = maxJobId.aggregations.max_id.value
+                    } catch {
+                        result = 0
+                    }
+                    
                 } else {
                     print("[Elasticsearch] Failed to get max job ID")
                     print(String(bytes: data!, encoding: .utf8)!)
