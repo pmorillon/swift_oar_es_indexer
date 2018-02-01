@@ -36,6 +36,9 @@ let minSubmissionTime = try conn.execute(sqlMinSubmissionTime).wrapped.array?.fi
 print(minSubmissionTime!)
 //print(maxSubmissionTime!)
 
+//let incrementTime = 604800 // 1 week
+let incrementTime = 2592000 // 1 month
+
 let sqlQuery = """
 SELECT jobs.job_id,
     jobs.start_time,
@@ -58,7 +61,7 @@ ON jobs.assigned_moldable_job = assigned_resources.moldable_job_id
 LEFT JOIN resources
 ON assigned_resources.resource_id = resources.resource_id
 WHERE jobs.submission_time > '\(minSubmissionTime!.int!)'
-    AND jobs.submission_time < '\(minSubmissionTime!.int! + 604800)'
+    AND jobs.submission_time < '\(minSubmissionTime!.int! + incrementTime)'
     AND jobs.job_id > \(maxJobId)
     AND jobs.queue_name != 'admin'
     AND jobs.state IN ('Terminated', 'Error')
@@ -67,7 +70,6 @@ ORDER BY job_id ASC
 """
 
 let request = try conn.execute(sqlQuery)
-
 let jobs = try OARCollection<OARJob>(node: request)
 
 print(jobs.items.count)
@@ -75,8 +77,8 @@ print(jobs.items.count)
 // Prepare Elasticsearch Documents
 var documents: [ESDocument] = []
 for job in jobs.items {
+    // Remove deleted jobs before started
     guard (job.host != nil) else {
-        print("error with job \(job.jobId), user \(job.jobUser)")
         continue
     }
     let doc = ESDocument(jobId: job.jobId,
