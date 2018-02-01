@@ -1,5 +1,6 @@
 import Foundation
 import PostgreSQL
+import Dispatch
 
 
 // Parse config file

@@ -1,4 +1,5 @@
 import Foundation
+import Dispatch
 
 struct Elasticsearch {
     let baseUrl: String
