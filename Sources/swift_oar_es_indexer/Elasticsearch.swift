@@ -117,7 +117,7 @@ struct Elasticsearch {
             }
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 200 {
-                    print("Elasticsearch bulk created.")
+                    //
                 } else {
                     print(httpResponse)
                 }

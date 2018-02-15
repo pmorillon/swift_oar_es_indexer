@@ -3,6 +3,7 @@ import Foundation
 struct Config: Codable {
     
     struct OAR: Codable {
+        let location: String
         let hostname: String
         let database: String
         let port: Int
@@ -17,7 +18,7 @@ struct Config: Codable {
         let password: String?
     }
     
-    let oar: OAR
+    let oar: [OAR]
     let elasticsearch: Elasticsearch
     
     static func read(path: String) -> Config {

@@ -1,19 +1,55 @@
 import Foundation
-import PostgreSQL
 import Dispatch
+import Console
+import PostgreSQL
 
+// Parse command line
+var arguments = CommandLine.arguments
+arguments.reverse()
+let scriptName = arguments.popLast()?.split(separator: "/").last
+var location:String = "default"
+
+while (arguments.count != 0) {
+    let arg = arguments.popLast()
+    switch arg {
+    case "-h"?, "--help"?:
+        print("Usage: \(String(describing: scriptName!)) [-l|--location <location>]")
+        print("Options:")
+        print("\t-l, --location : OAR server location (Default value: \(location))")
+        exit(0)
+    case "-l"?, "--location"?:
+        guard arguments.count > 0 else {
+            print("--location need an argument")
+            exit(1)
+        }
+        location = arguments.popLast()!
+    default:
+        print("Unknow option : \(String(describing: arg!))")
+    }
+}
 
 // Parse config file
-let config = Config.read(path: "/tmp/config.json")
+let configFile: String = "/tmp/config.json"
+let config = Config.read(path: configFile)
+
+// Initialize console
+let console: ConsoleProtocol = Terminal(arguments: CommandLine.arguments)
 
 
 // Connect to the Postgres database
+let oarConfig = config.oar.filter { $0.location == location }.first
+guard oarConfig != nil else {
+    print("Location \(location) not found into config file \(configFile) or declared twice.")
+    exit(1)
+}
+
 let postgreSQL = try PostgreSQL.Database(
-    hostname: config.oar.hostname,
-    database: config.oar.database,
-    user: config.oar.user,
-    password: config.oar.password
+    hostname: oarConfig!.hostname,
+    database: oarConfig!.database,
+    user: oarConfig!.user,
+    password: oarConfig!.password
 )
+
 let conn = try postgreSQL.makeConnection()
 
 let es = Elasticsearch(baseUrl: "http://" + config.elasticsearch.hostname + ":" + String(config.elasticsearch.port),
@@ -31,16 +67,21 @@ let stopTime: Int = 1506722400
 let sqlMinSubmissionTime = "SELECT MIN(submission_time) from jobs where job_id > \(maxJobId)"
 let sqlMaxSubmissionTime = "SELECT MAX(submission_time) from jobs where job_id > \(maxJobId)"
 
+console.print("SQL : \(sqlMinSubmissionTime)", newLine: true)
+let loadingBar = console.loadingBar(title: "Postgres Request")
+loadingBar.start()
 let minSubmissionTime = try conn.execute(sqlMinSubmissionTime).wrapped.array?.first!["min"]
 //let maxSubmissionTime = try conn.execute(sqlMaxSubmissionTime).wrapped.array?.first!["max"]
+loadingBar.finish()
 
 print(minSubmissionTime!)
 //print(maxSubmissionTime!)
 
-//let incrementTime = 604800 // 1 week
-let incrementTime = 2592000 // 1 month
+var incrementTime = 604800 // 1 week
+//let incrementTime = 2592000 // 1 month
 
-let sqlQuery = """
+var sqlQuery:String {
+    return """
 SELECT jobs.job_id,
     jobs.start_time,
     jobs.stop_time,
@@ -69,11 +110,14 @@ WHERE jobs.submission_time > '\(minSubmissionTime!.int!)'
 GROUP BY jobs.job_id, resources.cluster, resources.host, resources.type
 ORDER BY job_id ASC
 """
+}
 
+let loadingBar2 = console.loadingBar(title: "Postgres Request")
+loadingBar2.start()
 let request = try conn.execute(sqlQuery)
+loadingBar2.finish()
 let jobs = try OARCollection<OARJob>(node: request)
 
-print(jobs.items.count)
 
 // Prepare Elasticsearch Documents
 var documents: [ESDocument] = []
@@ -82,7 +126,8 @@ for job in jobs.items {
     guard (job.host != nil) else {
         continue
     }
-    let doc = ESDocument(jobId: job.jobId,
+    let doc = ESDocument(location: location,
+                         jobId: job.jobId,
                          state: job.state,
                          jobUser: job.jobUser,
                          startTime: job.startTime,
@@ -114,6 +159,7 @@ let indexBody = """
     "mappings": {
         "oar_document": {
             "properties": {
+                "location": {"type": "keyword"},
                 "job_id" : {"type": "double"},
                 "resources_count" : {"type": "double"},
                 "queue_name" : {"type": "keyword"},
@@ -143,6 +189,9 @@ group.wait()
 
 let chuncks = documents.split(chunkSize: 1000)
 
+let esProgressBar = console.progressBar(title: "Indexing documents")
+
+var progressCount = 0
 for chunk in chuncks {
     group.enter()
     var lines: String = ""
@@ -157,7 +206,10 @@ for chunk in chuncks {
         lines.append(String(data: data, encoding: .utf8)! + "\n")
     }
     es.bulk(body: lines.data(using: .utf8)!, completionHandler: { () in
+        progressCount += 1
+        esProgressBar.progress = Double(progressCount) / Double(chuncks.count)
         group.leave()
     })
 }
 group.wait()
+esProgressBar.finish()

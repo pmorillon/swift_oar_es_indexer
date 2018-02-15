@@ -1,11 +1,12 @@
 {
-    "oar": {
+    "oar": [{
+        "location": "default",
         "hostname": "localhost",
         "database": "oar2",
         "port": 5432,
         "user": "oarreader",
         "password": "read"
-    },
+    }],
     "elasticsearch": {
         "hostname": "localhost",
         "port": 9200,

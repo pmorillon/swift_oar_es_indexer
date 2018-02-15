@@ -1,6 +1,7 @@
 import Foundation
 
 struct ESDocument: Codable {
+    let location: String
     let jobId: Int
     let state: String
     let jobUser: String
@@ -18,7 +19,7 @@ struct ESDocument: Codable {
     let cluster: String?
     
     enum CodingKeys: String, CodingKey {
-        case state, duration, host, cluster
+        case location, state, duration, host, cluster
         case jobId = "job_id"
         case jobUser = "job_user"
         case startTime = "start_time"
