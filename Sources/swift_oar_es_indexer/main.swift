@@ -8,6 +8,7 @@ var arguments = CommandLine.arguments
 arguments.reverse()
 let scriptName = arguments.popLast()?.split(separator: "/").last
 var location:String = "default"
+var IntervalOption = "1w" // 1 week by default
 
 while (arguments.count != 0) {
     let arg = arguments.popLast()
@@ -23,6 +24,8 @@ while (arguments.count != 0) {
             exit(1)
         }
         location = arguments.popLast()!
+    case "-i"?, "--interval"?:
+        IntervalOption = arguments.popLast()!
     default:
         print("Unknow option : \(String(describing: arg!))")
     }
@@ -77,8 +80,7 @@ loadingBar.finish()
 print(minSubmissionTime!)
 //print(maxSubmissionTime!)
 
-var incrementTime = 604800 // 1 week
-//let incrementTime = 2592000 // 1 month
+let incrementTime = try TimeParser(humanString: IntervalOption).toSeconds()
 
 var sqlQuery:String {
     return """
@@ -213,3 +215,4 @@ for chunk in chuncks {
 }
 group.wait()
 esProgressBar.finish()
+console.print("\(String(describing: documents.count)) documents indexed")
