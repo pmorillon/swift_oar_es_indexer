@@ -47,15 +47,15 @@ struct Elasticsearch {
         task.resume()
     }
     
-    func getMaxJobId() -> Int {
+    func getMaxJobId(location: String) -> Int {
         let url = URL(string: baseUrl + "/_search")
         var request = URLRequest(url: url!)
         var result: Int = 0
         let body = """
 {
   "query": {
-    "type": {
-      "value": "oar_document"
+    "match": {
+      "location": "\(location)"
     }
   },
   "aggs": {

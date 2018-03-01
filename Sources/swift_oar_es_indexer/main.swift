@@ -67,7 +67,7 @@ let es = Elasticsearch(baseUrl: "http://" + config.elasticsearch.hostname + ":" 
                        password: config.elasticsearch.password
 )
 
-let maxJobId = es.getMaxJobId()
+let maxJobId = es.getMaxJobId(location: location)
 print("Last indexes job into elasticsearch : \(maxJobId)")
 
 // Query Postgres database
