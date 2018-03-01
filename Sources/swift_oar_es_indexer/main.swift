@@ -3,12 +3,15 @@ import Dispatch
 import Console
 import PostgreSQL
 
+let fileManager = FileManager.default
+
 // Parse command line
 var arguments = CommandLine.arguments
 arguments.reverse()
 let scriptName = arguments.popLast()?.split(separator: "/").last
 var location:String = "default"
 var IntervalOption = "1w" // 1 week by default
+var configFilePathString = fileManager.currentDirectoryPath + "/config.json"
 
 while (arguments.count != 0) {
     let arg = arguments.popLast()
@@ -18,6 +21,7 @@ while (arguments.count != 0) {
         print("Options:")
         print("\t-l, --location : OAR server location (Default value: \(location))")
         print("\t-i, --interval : Index time interval <n>d|w|m")
+        print("\t-c, --config : Configuration file path (Default : ./config.json)")
         exit(0)
     case "-l"?, "--location"?:
         guard arguments.count > 0 else {
@@ -27,14 +31,15 @@ while (arguments.count != 0) {
         location = arguments.popLast()!
     case "-i"?, "--interval"?:
         IntervalOption = arguments.popLast()!
+    case "-c"?, "--config"?:
+        configFilePathString = arguments.popLast()!
     default:
         print("Unknow option : \(String(describing: arg!))")
     }
 }
 
 // Parse config file
-let configFile: String = "/tmp/config.json"
-let config = Config.read(path: configFile)
+let config = Config.read(path: configFilePathString)
 
 // Initialize console
 let console: ConsoleProtocol = Terminal(arguments: CommandLine.arguments)
@@ -43,7 +48,7 @@ let console: ConsoleProtocol = Terminal(arguments: CommandLine.arguments)
 // Connect to the Postgres database
 let oarConfig = config.oar.filter { $0.location == location }.first
 guard oarConfig != nil else {
-    print("Location \(location) not found into config file \(configFile) or declared twice.")
+    print("Location \(location) not found into config file \(configFilePathString) or declared twice.")
     exit(1)
 }
 
