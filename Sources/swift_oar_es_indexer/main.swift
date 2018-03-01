@@ -54,6 +54,7 @@ guard oarConfig != nil else {
 
 let postgreSQL = try PostgreSQL.Database(
     hostname: oarConfig!.hostname,
+    port: oarConfig!.port,
     database: oarConfig!.database,
     user: oarConfig!.user,
     password: oarConfig!.password
