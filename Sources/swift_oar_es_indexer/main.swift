@@ -17,6 +17,7 @@ while (arguments.count != 0) {
         print("Usage: \(String(describing: scriptName!)) [-l|--location <location>]")
         print("Options:")
         print("\t-l, --location : OAR server location (Default value: \(location))")
+        print("\t-i, --interval : Index time interval <n>d|w|m")
         exit(0)
     case "-l"?, "--location"?:
         guard arguments.count > 0 else {
