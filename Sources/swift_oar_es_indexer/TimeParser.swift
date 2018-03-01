@@ -35,11 +35,11 @@ struct TimeParser {
         let unit = try self.unit()
         switch unit {
         case .day:
-            return value * 24 * 60
+            return value * 24 * 60 * 60
         case .week:
-            return value * 7 * 24 * 60
+            return value * 7 * 24 * 60 * 60
         case .month:
-            return value * 4 * 7 * 24 * 60
+            return value * 4 * 7 * 24 * 60 * 60
         }
     }
     
