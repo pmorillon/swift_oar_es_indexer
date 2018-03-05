@@ -135,6 +135,9 @@ for job in jobs.items {
     guard (job.host != nil) else {
         continue
     }
+    guard ((job.stopTime - job.startTime) > 0) else {
+        continue
+    }
     let doc = ESDocument(location: location,
                          jobId: job.jobId,
                          uniqJobId: "\(location)_\(job.jobId)",
