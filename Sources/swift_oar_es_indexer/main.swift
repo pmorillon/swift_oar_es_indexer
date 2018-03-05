@@ -137,6 +137,7 @@ for job in jobs.items {
     }
     let doc = ESDocument(location: location,
                          jobId: job.jobId,
+                         uniqJobId: "\(location)_\(job.jobId)",
                          state: job.state,
                          jobUser: job.jobUser,
                          startTime: job.startTime,
@@ -170,6 +171,7 @@ let indexBody = """
             "properties": {
                 "location": {"type": "keyword"},
                 "job_id" : {"type": "double"},
+                "uniq_job_id" : {"type": "keyword"},
                 "resources_count" : {"type": "double"},
                 "queue_name" : {"type": "keyword"},
                 "submission_time" : {"type": "date"},
