@@ -15,6 +15,7 @@ struct OARJob: NodeInitializable {
     let host: String?
     let jobType: String
     let queueName: String
+    let resourceType: String?
     
     init(node: Node) throws {
         jobId = try node.get("job_id")
@@ -30,5 +31,6 @@ struct OARJob: NodeInitializable {
         host = try node.get("host")
         jobType = try node.get("job_type")
         queueName = try node.get("queue_name")
+        resourceType = try node.get("resource_type")
     }
 }

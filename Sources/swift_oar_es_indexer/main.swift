@@ -131,10 +131,7 @@ let jobs = try OARCollection<OARJob>(node: request)
 // Prepare Elasticsearch Documents
 var documents: [ESDocument] = []
 for job in jobs.items {
-    // Remove deleted jobs before started
-    guard (job.host != nil) else {
-        continue
-    }
+    // Remove corrupted jobs
     guard ((job.stopTime - job.startTime) > 0) else {
         continue
     }
@@ -154,7 +151,8 @@ for job in jobs.items {
                          queueName: job.queueName,
                          resourcesCount: job.resourcesCount,
                          host: job.host!,
-                         cluster: job.cluster!
+                         cluster: job.cluster!,
+                         resourceType: job.resourceType!
     )
     documents.append(doc)
 }
@@ -187,7 +185,8 @@ let indexBody = """
                 "duration" : {"type": "double"},
                 "duration_resource": {"type": "double"},
                 "host": {"type": "keyword"},
-                "cluster": {"type": "keyword"}
+                "cluster": {"type": "keyword"},
+                "resource_type": {"type": "keyword"}
             }
         }
     }

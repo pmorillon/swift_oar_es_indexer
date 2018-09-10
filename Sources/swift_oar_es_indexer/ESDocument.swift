@@ -18,6 +18,7 @@ struct ESDocument: Codable {
     var resourcesCount: Int
     let host: String?
     let cluster: String?
+    let resourceType: String?
     
     enum CodingKeys: String, CodingKey {
         case location, state, duration, host, cluster
@@ -33,6 +34,7 @@ struct ESDocument: Codable {
         case initialRequest = "initial_request"
         case resourcesCount = "resources_count"
         case durationResource = "duration_resource"
+        case resourceType = "resource_type"
     }
     
 }
