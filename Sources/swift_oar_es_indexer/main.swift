@@ -150,9 +150,9 @@ for job in jobs.items {
                          jobType: job.jobType,
                          queueName: job.queueName,
                          resourcesCount: job.resourcesCount,
-                         host: job.host!,
-                         cluster: job.cluster!,
-                         resourceType: job.resourceType!
+                         host: job.host ?? "",
+                         cluster: job.cluster ?? "",
+                         resourceType: job.resourceType ?? ""
     )
     documents.append(doc)
 }
