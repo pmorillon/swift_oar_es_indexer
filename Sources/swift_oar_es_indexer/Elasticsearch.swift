@@ -25,6 +25,7 @@ struct Elasticsearch {
         var request = URLRequest(url: url!)
         request.httpMethod = "PUT"
         request.httpBody = body
+        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         addAuthHeader(to: &request)
         
         let session = URLSession(configuration: URLSessionConfiguration.default)
@@ -70,6 +71,7 @@ struct Elasticsearch {
         let semaphore = DispatchSemaphore(value: 0)
         request.httpMethod = "POST"
         request.httpBody = body
+        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         addAuthHeader(to: &request)
         let session = URLSession(configuration: URLSessionConfiguration.default)
         let task = session.dataTask(with: request) { (data, response, error) in
@@ -106,6 +108,7 @@ struct Elasticsearch {
         var request = URLRequest(url: url!)
         request.httpMethod = "PUT"
         request.httpBody = body
+        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         addAuthHeader(to: &request)
         
         let session = URLSession(configuration: URLSessionConfiguration.default)
