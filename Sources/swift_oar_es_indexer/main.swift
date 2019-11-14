@@ -79,10 +79,10 @@ let sqlMaxSubmissionTime = "SELECT MAX(submission_time) from jobs where job_id >
 
 console.print("SQL : \(sqlMinSubmissionTime)", newLine: true)
 let loadingBar = console.loadingBar(title: "Postgres Request")
-loadingBar.start()
+//loadingBar.start()
 let minSubmissionTime = try conn.execute(sqlMinSubmissionTime).wrapped.array?.first!["min"]
 //let maxSubmissionTime = try conn.execute(sqlMaxSubmissionTime).wrapped.array?.first!["max"]
-loadingBar.finish()
+//loadingBar.finish()
 
 print(minSubmissionTime!)
 //print(maxSubmissionTime!)
@@ -122,9 +122,9 @@ ORDER BY job_id ASC
 }
 
 let loadingBar2 = console.loadingBar(title: "Postgres Request")
-loadingBar2.start()
+//loadingBar2.start()
 let request = try conn.execute(sqlQuery)
-loadingBar2.finish()
+//loadingBar2.finish()
 let jobs = try OARCollection<OARJob>(node: request)
 
 
