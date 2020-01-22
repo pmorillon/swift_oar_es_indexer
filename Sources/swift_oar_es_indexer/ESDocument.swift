@@ -22,7 +22,7 @@ struct ESDocument: Codable {
     let timestamp: Int
     
     enum CodingKeys: String, CodingKey {
-        case location, state, duration, host, cluster, timestamp
+        case location, state, duration, host, cluster
         case jobId = "job_id"
         case uniqJobId = "uniq_job_id"
         case jobUser = "job_user"
@@ -36,6 +36,7 @@ struct ESDocument: Codable {
         case resourcesCount = "resources_count"
         case durationResource = "duration_resource"
         case resourceType = "resource_type"
+        case timestamp = "@timestamp"
     }
     
 }
