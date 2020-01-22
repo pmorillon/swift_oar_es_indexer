@@ -170,27 +170,25 @@ let indexBody = """
         "include_type_name": true
     },
     "mappings": {
-        "_doc": {
-            "properties": {
-                "location": {"type": "keyword"},
-                "job_id" : {"type": "double"},
-                "uniq_job_id" : {"type": "keyword"},
-                "resources_count" : {"type": "double"},
-                "queue_name" : {"type": "keyword"},
-                "submission_time" : {"type": "date"},
-                "job_type" : {"type": "keyword"},
-                "job_user" : {"type": "keyword"},
-                "initial_request" : {"type": "text"},
-                "state" : {"type": "keyword"},
-                "start_time" : {"type": "date"},
-                "stop_time" : {"type": "date"},
-                "duration" : {"type": "double"},
-                "duration_resource": {"type": "double"},
-                "host": {"type": "keyword"},
-                "cluster": {"type": "keyword"},
-                "resource_type": {"type": "keyword"},
-                "timestamp": {"type": "date"}
-            }
+        "properties": {
+            "location": {"type": "keyword"},
+            "job_id" : {"type": "double"},
+            "uniq_job_id" : {"type": "keyword"},
+            "resources_count" : {"type": "double"},
+            "queue_name" : {"type": "keyword"},
+            "submission_time" : {"type": "date"},
+            "job_type" : {"type": "keyword"},
+            "job_user" : {"type": "keyword"},
+            "initial_request" : {"type": "text"},
+            "state" : {"type": "keyword"},
+            "start_time" : {"type": "date"},
+            "stop_time" : {"type": "date"},
+            "duration" : {"type": "double"},
+            "duration_resource": {"type": "double"},
+            "host": {"type": "keyword"},
+            "cluster": {"type": "keyword"},
+            "resource_type": {"type": "keyword"},
+            "timestamp": {"type": "date"}
         }
     }
 }
