@@ -135,8 +135,7 @@ for job in jobs.items {
     guard ((job.stopTime - job.startTime) > 0) else {
         continue
     }
-    let doc = ESDocument(type: "oar_document",
-                         location: location,
+    let doc = ESDocument(location: location,
                          jobId: job.jobId,
                          uniqJobId: "\(location)_\(job.jobId)",
                          state: job.state,
@@ -173,7 +172,6 @@ let indexBody = """
     "mappings": {
         "_doc": {
             "properties": {
-                "type": {"type": "keyword"},
                 "location": {"type": "keyword"},
                 "job_id" : {"type": "double"},
                 "uniq_job_id" : {"type": "keyword"},
