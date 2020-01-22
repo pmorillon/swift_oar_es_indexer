@@ -152,8 +152,7 @@ for job in jobs.items {
                          resourcesCount: job.resourcesCount,
                          host: job.host ?? "",
                          cluster: job.cluster ?? "",
-                         resourceType: job.resourceType ?? "",
-                         timestamp: job.startTime
+                         resourceType: job.resourceType ?? ""
     )
     documents.append(doc)
 }
@@ -166,7 +165,7 @@ let data = try encoder.encode(documents)
 let indexBody = """
 {
     "settings": {
-        "number_of_replicas": 0
+        "number_of_replicas": 1
     },
     "mappings": {
         "properties": {
@@ -186,8 +185,7 @@ let indexBody = """
             "duration_resource": {"type": "double"},
             "host": {"type": "keyword"},
             "cluster": {"type": "keyword"},
-            "resource_type": {"type": "keyword"},
-            "@timestamp": {"type": "date"}
+            "resource_type": {"type": "keyword"}
         }
     }
 }
@@ -214,7 +212,7 @@ for chunk in chuncks {
         a.startTime *= 1000
         a.stopTime *= 1000
         let data = try encoder.encode(a)
-        lines.append("{ \"index\" : { \"_index\": \"oar_01\", \"_type\": \"oar_document\" } }\n")
+        lines.append("{ \"index\" : { \"_index\": \"oar_01\" } }\n")
         
         lines.append(String(data: data, encoding: .utf8)! + "\n")
     }
