@@ -187,7 +187,7 @@ let indexBody = """
             "host": {"type": "keyword"},
             "cluster": {"type": "keyword"},
             "resource_type": {"type": "keyword"},
-            "timestamp": {"type": "date"}
+            "@timestamp": {"type": "date"}
         }
     }
 }
