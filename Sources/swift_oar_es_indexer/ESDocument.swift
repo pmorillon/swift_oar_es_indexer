@@ -36,7 +36,7 @@ struct ESDocument: Codable {
         case resourcesCount = "resources_count"
         case durationResource = "duration_resource"
         case resourceType = "resource_type"
-        case timestamp = "timestamp"
+        case timestamp = "@timestamp"
     }
     
 }
