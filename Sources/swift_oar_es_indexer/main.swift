@@ -152,7 +152,8 @@ for job in jobs.items {
                          resourcesCount: job.resourcesCount,
                          host: job.host ?? "",
                          cluster: job.cluster ?? "",
-                         resourceType: job.resourceType ?? ""
+                         resourceType: job.resourceType ?? "",
+                         timestamp: job.startTime
     )
     documents.append(doc)
 }
@@ -186,7 +187,8 @@ let indexBody = """
                 "duration_resource": {"type": "double"},
                 "host": {"type": "keyword"},
                 "cluster": {"type": "keyword"},
-                "resource_type": {"type": "keyword"}
+                "resource_type": {"type": "keyword"},
+                "timestamp": {"type": "date"}
             }
         }
     }
