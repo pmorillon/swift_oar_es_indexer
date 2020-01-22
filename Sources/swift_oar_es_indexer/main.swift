@@ -167,7 +167,8 @@ let data = try encoder.encode(documents)
 let indexBody = """
 {
     "settings": {
-        "number_of_replicas": 0
+        "number_of_replicas": 0,
+        "include_type_name": true
     },
     "mappings": {
         "_doc": {
